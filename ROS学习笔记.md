@@ -1,5 +1,10 @@
 # ROS学习笔记
+<<<<<<< 777ce02dae47a77cfeb0417c4e35340e8d778f45
 ## 1.只编译ROS工作空间中的某个包
+=======
+
+## 编译ROS工作空间中的某一个包
+>>>>>>> first commit
 > $ catkin_make -DCATKIN_WHITELIST_PACKAGES="package1;package2"
 
 [详细请查看：http://wiki.ros.org/catkin/commands/catkin_make](http://wiki.ros.org/catkin/commands/catkin_make)
