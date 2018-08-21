@@ -11,4 +11,4 @@ $ git config --global user.email "xxx@xx.com"
 - 提交文件，执行指令：`git commit -m "提交文件"`
 - 关联github仓库，执行指令：`git remote add origin https://github.com/username/projectname.git`
 - 上传本地代码，执行指令：`git push -u origin master`
-- 可以通过如下命令进行代码合并[pull=fetch+merge]:`git pull --rebase origin master`
+- 可以通过如下命令进行代码合并[pull=fetch+merge]：`git pull --rebase origin master`
