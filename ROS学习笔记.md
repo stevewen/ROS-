@@ -1,6 +1,6 @@
 # ROS学习笔记
 ## 编译ROS工作空间中的某一个包
-`$ catkin_make -DCATKIN_WHITELIST_PACKAGES="package1;package2"`
+`$ catkin_make -DCATKIN_WHITELIST_PACKAGES="package1;package2"`    
 [详细请查看：catkin_make](http://wiki.ros.org/catkin/commands/catkin_make)
 
 ## catkin_make
