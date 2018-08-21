@@ -1,6 +1,15 @@
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+<!-- code_chunk_output -->
+
+* [ROS学习笔记](#ros学习笔记)
+	* [编译ROS工作空间中的某一个包](#编译ros工作空间中的某一个包)
+	* [catkin_make](#catkin_make)
+
+<!-- /code_chunk_output -->
+
 # ROS学习笔记
 ## 编译ROS工作空间中的某一个包
-`$ catkin_make -DCATKIN_WHITELIST_PACKAGES="package1;package2"`    
+`$ catkin_make -DCATKIN_WHITELIST_PACKAGES="package1;package2"`
 [详细请查看：catkin_make](http://wiki.ros.org/catkin/commands/catkin_make)
 
 ## catkin_make
