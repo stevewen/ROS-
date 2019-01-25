@@ -1,0 +1,371 @@
+<html>
+  <head>
+	  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>i5ting_ztree_toc:算法报告</title>
+		<link href="toc/style/coy.css" media="all" rel="stylesheet" type="text/css"/>
+		<link href="toc/css/zTreeStyle/zTreeStyle.css" media="all" rel="stylesheet" type="text/css"/>
+	  <style>
+		pre {
+		    counter-reset: line-numbering;
+		    border: solid 1px #d9d9d9;
+		    border-radius: 0;
+		    background: #fff;
+		    padding: 0;
+		    line-height: 23px;
+		    margin-bottom: 30px;
+		    white-space: pre;
+		    overflow-x: auto;
+		    word-break: inherit;
+		    word-wrap: inherit;
+		}
+
+		pre a::before {
+		  content: counter(line-numbering);
+		  counter-increment: line-numbering;
+		  padding-right: 1em; /* space after numbers */
+		  width: 25px;
+		  text-align: right;
+		  opacity: 0.7;
+		  display: inline-block;
+		  color: #aaa;
+		  background: #eee;
+		  margin-right: 16px;
+		  padding: 2px 10px;
+		  font-size: 13px;
+		  -webkit-touch-callout: none;
+		  -webkit-user-select: none;
+		  -khtml-user-select: none;
+		  -moz-user-select: none;
+		  -ms-user-select: none;
+		  user-select: none;
+		}
+
+		pre a:first-of-type::before {
+		  padding-top: 10px;
+		}
+
+		pre a:last-of-type::before {
+		  padding-bottom: 10px;
+		}
+
+		pre a:only-of-type::before {
+		  padding: 10px;
+		}
+
+		.highlight { background-color: #ffffcc } /* RIGHT */
+		</style>
+  </head>
+  <body>
+	  <div>
+				<div style='width:25%;'>
+						<ul id="tree" class="ztree" style='width:100%'>
+
+						</ul>
+				</div>
+        <div id='readme' style='width:70%;margin-left:20%;'>
+          	<article class='markdown-body'>
+            	<hr>
+
+<h1 id="-">自主避障算法报告</h1>
+<h2 id="1-">1. 算法概述</h2>
+<p>abd<a href="ABC">^1</a>
+scd<a href="ABD">^2</a></p>
+<h2 id="2-">2. 机械臂与三维环境建模</h2>
+<h3 id="2-1-">2.1 机械臂建模</h3>
+<center>
+<img src="/figure/robotaxis.png" width="40%"/>
+Fig 1. D-H模型
+</center>
+
+<pre><code class="lang-java">%% ----机械臂几何模型----
+%
+function [Base,Arm1,Arm2,Arm3,Arm4,Arm5,Arm6,Arm7]=arm(L,q,C_Base,C_Arm,C_Hand)
+
+% 关节角
+% deg=pi/180;
+% q=[30 30 0 50 0 0 0]*deg;
+
+L1=L(1);
+L2=L(2);
+L3=L(3);
+L4=L(4);
+L5=L(5);
+L6=L(6);
+L7=L(7);
+
+%---cylinder 生成圆柱体数据
+n=20;[x,y,z]=cylinder(1,n);
+X0=[zeros(1,n+1);x;zeros(1,n+1)];
+Y0=[zeros(1,n+1);y;zeros(1,n+1)];
+Z0=[z(1,:);z;z(2,:)];
+
+%---机械臂外形尺寸
+
+%---Cube_0 基座
+Base=cube(C_Base.Coordinate(1),C_Base.Coordinate(2),C_Base.Coordinate(3),...
+          C_Base.L,C_Base.W,C_Base.H);
+
+%---cylinder_1
+X=C_Arm.R*X0;
+Y=C_Arm.R*Y0;
+Z=L1.d*Z0;
+
+L0=Link(&#39;d&#39;, 0,  &#39;a&#39;, 0,  &#39;alpha&#39;, 0);
+T=L0.A(0);
+
+[x1,y1,z1]=transform(X,Y,Z,T);
+Arm1=cylind(x1,y1,z1);
+
+%---cylinder_2
+X=C_Arm.R*X0;
+Y=C_Arm.R*Y0;
+Z=80*Z0-40;
+
+T=L1.A(q(1));
+
+[x1,y1,z1]=transform(X,Y,Z,T);
+Arm2=cylind2(x1,y1,z1);
+
+%---cylinder_3
+X=C_Arm.R*X0;
+Y=C_Arm.R*Y0;
+Z=L3.d*Z0;
+
+T=L1.A(q(1))*L2.A(q(2));
+
+[x2,y2,z2]=transform(X,Y,Z,T);
+Arm3=cylind(x2,y2,z2);
+
+%---cylinder_4
+X=C_Arm.R*X0;
+Y=C_Arm.R*Y0;
+Z=80*Z0-40;
+
+T=L1.A(q(1))*L2.A(q(2))*L3.A(q(3));
+
+[x2,y2,z2]=transform(X,Y,Z,T);
+Arm4=cylind2(x2,y2,z2);
+
+%---cylinder_5
+X=C_Arm.R*X0;
+Y=C_Arm.R*Y0;
+Z=L5.d*Z0;
+
+T=L1.A(q(1))*L2.A(q(2))*L3.A(q(3))*L4.A(q(4));
+
+[x3,y3,z3]=transform(X,Y,Z,T);
+Arm5=cylind(x3,y3,z3);
+
+%---cylinder_7
+X=C_Hand.R*X0;
+Y=C_Hand.R*Y0;
+Z=L7.d*Z0;
+
+T=L1.A(q(1))*L2.A(q(2))*L3.A(q(3))*L4.A(q(4))*L5.A(q(5))*L6.A(q(6));
+
+[x4,y4,z4]=transform(X,Y,Z,T);
+Arm7=cylind(x4,y4,z4);
+
+%---cylinder_6
+X=C_Arm.R*X0;
+Y=C_Arm.R*Y0;
+Z=80*Z0-40;
+
+T=L1.A(q(1))*L2.A(q(2))*L3.A(q(3))*L4.A(q(4))*L5.A(q(5));
+
+[x3,y3,z3]=transform(X,Y,Z,T);
+Arm6=cylind2(x3,y3,z3);
+
+%---plane---
+% ezmesh(&#39;0&#39;,120)
+% delete(get(gca,&#39;title&#39;))
+
+end
+
+%%
+%---坐标变换
+function [xt,yt,zt] = transform(x,y,z,T)
+p1=[x(1,:);y(1,:);z(1,:)]; p1=T*p1;
+p2=[x(2,:);y(2,:);z(2,:)]; p2=T*p2;
+p3=[x(3,:);y(3,:);z(3,:)]; p3=T*p3;
+p4=[x(4,:);y(4,:);z(4,:)]; p4=T*p4;
+
+xt=[p1(1,:);p2(1,:);p3(1,:);p4(1,:)];
+yt=[p1(2,:);p2(2,:);p3(2,:);p4(2,:)];
+zt=[p1(3,:);p2(3,:);p3(3,:);p4(3,:)];
+end
+
+%---圆柱体1
+function cyObj = cylind(x,y,z)
+[TRI,V]= surf2patch(x,y,z);
+cy.Vertices = V;
+cy.Faces = TRI;
+cy.FaceVertexCData = ones(size(V,1),1)*[0.80,0.30,0.10];   % parula
+cy.FaceColor = &#39;interp&#39;;
+cyObj = patch(cy,&#39;LineStyle&#39;,&#39;none&#39;);
+end
+
+%---圆柱体2
+function cyObj = cylind2(x,y,z)
+[TRI,V]= surf2patch(x,y,z);
+cy.Vertices = V;
+cy.Faces = TRI;
+cy.FaceVertexCData = flag(size(V,1));
+cy.FaceColor = &#39;interp&#39;;
+cyObj = patch(cy,&#39;LineStyle&#39;,&#39;none&#39;);
+end
+
+%---cube---
+function cbObj = cube(x0,y0,z0,a,b,c)
+V1=[-1;  1;  1; -1; -1;  1;  1; -1;];
+V2=[-1; -1;  1;  1; -1; -1;  1;  1;];
+V3=[-1; -1; -1; -1;  1;  1;  1;  1;];
+F= [1 2 3 4; 1 2 6 5; 2 3 7 6; 3 4 8 7; 4 1 5 8; 5 6 7 8;];
+
+[THETA,PHI,~]=cart2sph(V1,V2,V3);
+R=ones(size(V1(:,1)));
+[V1,V2,V3]=sph2cart(THETA,PHI,R);
+V=[a*V1+x0 b*V2+y0 c*V3+z0];
+
+cb.Vertices = V;
+cb.Faces = F;
+cb.FaceVertexCData = bone(size(V,1));
+cb.FaceColor = &#39;interp&#39;;
+cbObj = patch(cb,&#39;LineStyle&#39;,&#39;none&#39;); % alpha(0.2)
+end
+</code></pre>
+<h3 id="2-2-">2.2 环境建模</h3>
+<pre><code class="lang-java">%% ----3D环境模型----
+% 包含 长方体/圆柱体/球体
+%
+function [cbObj,cbObj2,cyObj,spObj] = sence(CU,CU2,CU3,CY,SP)
+
+%---plane---
+% ezmesh(&#39;0&#39;),delete(get(gca,&#39;title&#39;));
+[x,y]=meshgrid(-2000:100:2000);
+z = -100*ones(size(x,1));
+mesh(x,z,-y,&#39;EdgeColor&#39;,&#39;k&#39;,&#39;FaceAlpha&#39;,0.6);
+
+%---cube---
+cbObj=cb(CU.Coordinate(1),CU.Coordinate(2),CU.Coordinate(3), CU.L, CU.W, CU.H);
+cbObj2=cb2(CU2.Coordinate(1),CU2.Coordinate(2),CU2.Coordinate(3),...
+           CU2.L, CU2.W, CU2.H);
+cb(CU3.Coordinate(1),CU3.Coordinate(2),CU3.Coordinate(3), CU3.L, CU3.W, CU3.H);
+
+%---cylinder---
+cyObj=cy(CY.Coordinate(1),CY.Coordinate(2),CY.Coordinate(3), CY.R, CY.H);
+
+%---sphere---
+spObj=sp(SP.Coordinate(1),SP.Coordinate(2),SP.Coordinate(3), SP.R);
+
+end
+
+%%
+%---cube---
+function cbObj = cb(x0,y0,z0,a,b,c)
+V1=[-1;  1;  1; -1; -1;  1;  1; -1;];
+V2=[-1; -1;  1;  1; -1; -1;  1;  1;];
+V3=[-1; -1; -1; -1;  1;  1;  1;  1;];
+F= [1 2 3 4; 1 2 6 5; 2 3 7 6; 3 4 8 7; 4 1 5 8; 5 6 7 8;];
+
+[THETA,PHI,~]=cart2sph(V1,V2,V3);
+R=ones(size(V1(:,1)));
+[V1,V2,V3]=sph2cart(THETA,PHI,R);
+% V=[a*V1+x0 b*V2+y0 c*V3+z0];
+V=[(a*V1+x0) (c*V3+z0) -(b*V2+y0)];
+
+cb.Vertices = V;
+cb.Faces = F;
+cb.FaceVertexCData = bone(size(V,1)); % bone
+cb.FaceColor = &#39;interp&#39;;
+cbObj = patch(cb,&#39;LineStyle&#39;,&#39;none&#39;);
+end
+
+%---cube---
+function cbObj = cb2(x0,y0,z0,a,b,c)
+V1=[-1;  1;  1; -1; -1;  1;  1; -1;];
+V2=[-1; -1;  1;  1; -1; -1;  1;  1;];
+V3=[-1; -1; -1; -1;  1;  1;  1;  1;];
+F= [1 2 3 4; 1 2 6 5; 2 3 7 6; 3 4 8 7; 4 1 5 8; 5 6 7 8;];
+
+[THETA,PHI,~]=cart2sph(V1,V2,V3);
+R=ones(size(V1(:,1)));
+[V1,V2,V3]=sph2cart(THETA,PHI,R);
+% V=[a*V1+x0 b*V2+y0 c*V3+z0];
+V=[(a*V1+x0) (c*V3+z0) -(b*V2+y0)];
+
+cb.Vertices = V;
+cb.Faces = F;
+cb.FaceVertexCData = gray(size(V,1)); % bone
+cb.FaceColor = &#39;interp&#39;;
+cbObj = patch(cb,&#39;LineStyle&#39;,&#39;none&#39;);
+end
+
+%---cylinder---
+function cyObj = cy(x0,y0,z0,r,h)
+n=20;[x,y,z]=cylinder(1,n);
+x=[zeros(1,n+1);x;zeros(1,n+1)];
+y=[zeros(1,n+1);y;zeros(1,n+1)];
+z=[z(1,:);z;z(2,:)];
+% vx=r*x+x0;vy=r*y+y0;vz=h*z+z0;
+vx=r*x+x0;vy=h*z+z0;vz=r*y+y0;vz=-vz;
+[TRI,V]= surf2patch(vx,vy,vz);
+
+cy.Vertices = V;
+cy.Faces = TRI;
+cy.FaceVertexCData = lines(size(V,1));   % parula
+cy.FaceColor = &#39;interp&#39;;
+cyObj = patch(cy,&#39;LineStyle&#39;,&#39;none&#39;);
+end
+
+%---sphere---
+function spObj = sp(x0,y0,z0,r)
+f=@(x,y,z)(x-x0).^2+(y-y0).^2+(z-z0).^2-r^2;
+[x,y,z]=meshgrid(r*linspace(-1.1,1.1,20));
+x=x+x0;y=y+y0;z=z+z0;val=f(x,y,z);
+[p,v]=isosurface(x,y,z,val,0);
+
+sp.Vertices = v;
+sp.Faces = p;
+sp.FaceVertexCData = parula(size(v,1));  %
+sp.FaceColor = &#39;interp&#39;;
+spObj = patch(sp,&#39;LineStyle&#39;,&#39;none&#39;); alpha(0.8); axis equal
+end
+</code></pre>
+<h2 id="3-">3. 碰撞检测方法</h2>
+<h3 id="3-1-sat">3.1 <a href="https://blog.csdn.net/u011373710/article/details/54773171">SAT</a></h3>
+<h3 id="3-2-gjk">3.2 <a href="https://blog.csdn.net/u011373710/article/details/54773174">GJK</a></h3>
+<h2 id="4-rrtstar-">4. RRTstar路径生成</h2>
+<h3 id="4-1-">4.1 算法原理</h3>
+<h3 id="4-2-">4.2 算法实现</h3>
+<h2 id="5-">5. 数值仿真实现</h2>
+<h2 id="6-todo-lists">6. TODO lists</h2>
+<ul>
+<li>[x] @mentions, <strong>formatting</strong>, and <del>tags</del> supported</li>
+<li>[x] list syntax required (any unordered or ordered list supported)</li>
+<li>[ ] this is a complete item</li>
+<li>[ ] this is an incomplete item</li>
+</ul>
+<h2 id="-">参考文献</h2>
+
+          	</article>
+        </div>
+		</div>
+  </body>
+</html>
+<script type="text/javascript" src="toc/js/jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="toc/js/jquery.ztree.all-3.5.min.js"></script>
+<script type="text/javascript" src="toc/js/ztree_toc.js"></script>
+<script type="text/javascript" src="toc_conf.js"></script>
+
+<SCRIPT type="text/javascript" >
+<!--
+$(document).ready(function(){
+    var css_conf = eval(markdown_panel_style);
+    $('#readme').css(css_conf)
+
+    var conf = eval(jquery_ztree_toc_opts);
+		$('#tree').ztree_toc(conf);
+});
+//-->
+</SCRIPT>
